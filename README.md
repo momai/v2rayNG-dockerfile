@@ -13,6 +13,12 @@ A V2Ray client for Android, support [Xray core](https://github.com/XTLS/Xray-cor
 <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="165" height="64" />
 </a>
 
+### Assemble with pre-installed subscription-link
+Execute:
+`./gradlew assembleRelease -PmyArgument=MY_CUSTOM_LINK`
+
+libv2ray.aar version is 1.8.17 from https://github.com/2dust/AndroidLibXrayLite/releases
+
 ### Telegram Channel
 [github_2dust](https://t.me/github_2dust)
 

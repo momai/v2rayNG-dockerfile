@@ -29,6 +29,15 @@ android {
 
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("release_keystore")
+            storePassword = "123123"
+            keyAlias = "123"
+            keyPassword = "123123"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -36,7 +45,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
@@ -130,3 +139,20 @@ dependencies {
     implementation(libs.work.runtime.ktx)
     implementation(libs.work.multiprocess)
 }
+
+val myArgument: String? by project
+
+// Создаем задачу для выполнения shell-команды с аргументом
+val preAssembleRelease by tasks.registering(Exec::class) {
+    // Используем переданный аргумент или значение по умолчанию
+    if (myArgument.isNullOrBlank() == false) {
+        commandLine("sh", "-c", "sed -i '' 's|VAS3K_SUB_URL|$myArgument|g' src/main/res/values/strings.xml")
+    }
+}
+
+tasks.whenTaskAdded {
+    if (name == "assembleRelease") {
+        dependsOn(preAssembleRelease)
+    }
+}
+

@@ -8,3 +8,4 @@
 *.apk
 signing.properties
 *.aar
+!/app/libs/libv2ray.aar

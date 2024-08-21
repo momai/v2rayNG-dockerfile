@@ -44,6 +44,7 @@ import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.drakeet.support.toast.ToastCompat
 import java.util.concurrent.TimeUnit
 
@@ -172,6 +173,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
         mainViewModel.startListenBroadcast()
         mainViewModel.copyAssets(assets)
+        lifecycleScope.launch(Dispatchers.IO) {
+            mainViewModel.updateConfigViaSubAll()
+            delay(500)
+            withContext(Dispatchers.Main) {
+                mainViewModel.reloadServerList()
+            }
+
+        }
     }
 
     private fun initGroupTab() {
