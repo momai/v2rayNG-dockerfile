@@ -142,14 +142,29 @@ dependencies {
 
 val myArgument: String? by project
 
-// Создаем задачу для выполнения shell-команды с аргументом
 val preAssembleRelease by tasks.registering(Exec::class) {
-    // Используем переданный аргумент или значение по умолчанию
-    if (myArgument.isNullOrBlank() == false) {
-        commandLine("sh", "-c", "sed -i '' 's|VAS3K_SUB_URL|$myArgument|g' src/main/res/values/strings.xml")
+    doFirst {
+        println("Starting preAssembleRelease task")
+        println("myArgument value: $myArgument")
+        
+        val stringsFile = file("/workspace/v2rayNG/V2rayNG/app/src/main/res/values/strings.xml")
+        println("strings.xml exists: ${stringsFile.exists()}")
+        println("strings.xml path: ${stringsFile.absolutePath}")
+        
+        if (!myArgument.isNullOrBlank()) {
+            // Экранируем специальные символы в myArgument
+            val escapedArgument = myArgument!!.replace("&", "\\&").replace("|", "\\|")
+            
+            // Используем более универсальный синтаксис sed
+            val sedCommand = "sed -i.bak 's|VAS3K_SUB_URL|$escapedArgument|g' ${stringsFile.absolutePath}"
+            println("Executing command: $sedCommand")
+            
+            commandLine("sh", "-c", sedCommand)
+        } else {
+            println("myArgument is null or blank, skipping sed command")
+        }
     }
-}
-
+    
 tasks.whenTaskAdded {
     if (name == "assembleRelease") {
         dependsOn(preAssembleRelease)
