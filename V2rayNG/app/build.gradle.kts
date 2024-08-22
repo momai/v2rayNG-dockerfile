@@ -32,6 +32,7 @@ android {
         // Добавляем BuildConfig поле
       //  buildConfigField("String", "VAS3K_SUB_URL", "\"${project.properties["myArgument"] ?: "VAS3K_SUB_URL"}\"")
 
+        val myArgument = project.findProperty("myArgument") as String? ?: "VAS3K_SUB_URL"
         resValue("string", "vas3k_subscription_url", myArgument)
         buildConfigField("String", "VAS3K_SUB_URL", "\"$myArgument\"")
     }
@@ -213,4 +214,13 @@ afterEvaluate {
             }
         }
     }
+}
+tasks.register("printMyArgument") {
+    doLast {
+        println("myArgument value: ${project.findProperty("myArgument")}")
+    }
+}
+
+tasks.named("assembleRelease") {
+    dependsOn("printMyArgument")
 }
