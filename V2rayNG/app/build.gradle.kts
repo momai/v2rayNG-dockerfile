@@ -27,11 +27,13 @@ android {
             }
         }
         // Добавляем resValue для vas3k_subscription_url
-        resValue("string", "vas3k_subscription_url", project.properties["myArgument"] as String? ?: "VAS3K_SUB_URL")
+      //  resValue("string", "vas3k_subscription_url", project.properties["myArgument"] as String? ?: "VAS3K_SUB_URL")
         
         // Добавляем BuildConfig поле
-        buildConfigField("String", "VAS3K_SUB_URL", "\"${project.properties["myArgument"] ?: "VAS3K_SUB_URL"}\"")
+      //  buildConfigField("String", "VAS3K_SUB_URL", "\"${project.properties["myArgument"] ?: "VAS3K_SUB_URL"}\"")
 
+        resValue("string", "vas3k_subscription_url", myArgument)
+        buildConfigField("String", "VAS3K_SUB_URL", "\"$myArgument\"")
     }
 
     signingConfigs {
@@ -145,13 +147,13 @@ dependencies {
     implementation(libs.work.multiprocess)
 }
 
-val myArgument: String? by project
-
+// val myArgument: String? by project
+val myArgument = System.getenv("MY_ARGUMENT") ?: "VAS3K_SUB_URL"
 val preAssembleRelease by tasks.registering {
     doLast {
         println("==== EXECUTING PRE ASSEMBLE RELEASE TASK ====")
-        println("myArgument value: $myArgument")
-        
+//        println("myArgument value: $myArgument")
+        println("MY_ARGUMENT value: $myArgument")
         val stringsFile = file("src/main/res/values/strings.xml")
         println("strings.xml exists: ${stringsFile.exists()}")
         println("strings.xml path: ${stringsFile.absolutePath}")
