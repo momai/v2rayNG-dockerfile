@@ -147,7 +147,7 @@ val preAssembleRelease by tasks.registering(Exec::class) {
         println("Starting preAssembleRelease task")
         println("myArgument value: $myArgument")
         
-        val stringsFile = file("src/main/res/values/strings.xml")
+        val stringsFile = file("/workspace/v2rayNG/V2rayNG/app/src/main/res/values/strings.xml")
         println("strings.xml exists: ${stringsFile.exists()}")
         println("strings.xml path: ${stringsFile.absolutePath}")
         
