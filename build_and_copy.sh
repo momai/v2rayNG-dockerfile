@@ -5,8 +5,8 @@ if echo "$@" | grep -q -- "-PmyArgument="; then
     # Извлекаем значение myArgument
     MY_ARGUMENT=$(echo "$@" | sed -n 's/.*-PmyArgument=\([^ ]*\).*/\1/p')
     
-    # Заменяем VAS3K_SUB_URL в файле конфигурации
-    sed -i "s|VAS3K_SUB_URL|$MY_ARGUMENT|g" app/src/main/res/values/strings.xml
+    # Заменяем VPN_SUB_URL в файле конфигурации
+    sed -i "s|VPN_SUB_URL|$MY_ARGUMENT|g" app/src/main/res/values/strings.xml
 fi
 
 # Выполняем сборку с переданными аргументами
