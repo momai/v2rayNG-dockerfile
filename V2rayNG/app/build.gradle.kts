@@ -26,6 +26,11 @@ android {
                 isUniversalApk = true
             }
         }
+        // Добавляем resValue для vas3k_subscription_url
+        resValue("string", "vas3k_subscription_url", project.properties["myArgument"] as String? ?: "VAS3K_SUB_URL")
+        
+        // Добавляем BuildConfig поле
+        buildConfigField("String", "VAS3K_SUB_URL", "\"${project.properties["myArgument"] ?: "VAS3K_SUB_URL"}\"")
 
     }
 
@@ -142,36 +147,68 @@ dependencies {
 
 val myArgument: String? by project
 
-val preAssembleRelease by tasks.registering(Exec::class) {
-    doFirst {
-        println("Starting preAssembleRelease task")
+val preAssembleRelease by tasks.registering {
+    doLast {
+        println("==== EXECUTING PRE ASSEMBLE RELEASE TASK ====")
         println("myArgument value: $myArgument")
         
-        val stringsFile = file("/workspace/v2rayNG/V2rayNG/app/src/main/res/values/strings.xml")
+        val stringsFile = file("src/main/res/values/strings.xml")
         println("strings.xml exists: ${stringsFile.exists()}")
         println("strings.xml path: ${stringsFile.absolutePath}")
+        println("Original strings.xml content:")
+        println(stringsFile.readText())
         
         if (!myArgument.isNullOrBlank()) {
-            // Экранируем специальные символы в myArgument
-            val escapedArgument = myArgument!!.replace("&", "\\&").replace("|", "\\|")
-            
-            // Используем более универсальный синтаксис sed
-            val sedCommand = "sed -i.bak 's|VAS3K_SUB_URL|$escapedArgument|g' ${stringsFile.absolutePath}"
-            println("Executing command: $sedCommand")
-            
-            commandLine("sh", "-c", sedCommand)
+            val newContent = stringsFile.readText().replace("VAS3K_SUB_URL", myArgument!!)
+            stringsFile.writeText(newContent)
+            println("Replacement successful")
+            println("Updated strings.xml content:")
+            println(newContent)
         } else {
-            println("myArgument is null or blank, skipping sed command")
+            println("myArgument is null or blank, skipping replacement")
         }
-    }
-    
-    doLast {
-        println("preAssembleRelease task completed")
-    }
-}    
-tasks.whenTaskAdded {
-    if (name == "assembleRelease") {
-        dependsOn(preAssembleRelease)
     }
 }
 
+val postAssembleRelease by tasks.registering {
+    doLast {
+        println("==== EXECUTING POST ASSEMBLE RELEASE TASK ====")
+        val stringsFile = file("src/main/res/values/strings.xml")
+        println("Final strings.xml content:")
+        println(stringsFile.readText())
+
+        val generatedStringsFile = file("build/intermediates/merged_res/release/values/values.xml")
+        if (generatedStringsFile.exists()) {
+            println("Generated values.xml content:")
+            println(generatedStringsFile.readText())
+        } else {
+            println("Generated values.xml not found at expected location")
+        }
+    }
+}
+
+android.applicationVariants.all {
+    val variant = this
+    if (buildType.name == "release") {
+        val assembleTask = tasks.named("assemble${variant.name.capitalize()}")
+        assembleTask.configure {
+            dependsOn(preAssembleRelease)
+            finalizedBy(postAssembleRelease)
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.named("assembleRelease").configure {
+        doLast {
+            println("==== CHECKING APK CONTENTS ====")
+            val apkFile = file("build/outputs/apk/release/app-release.apk")
+            if (apkFile.exists()) {
+                println("APK file found: ${apkFile.absolutePath}")
+                // Здесь можно добавить дополнительные проверки содержимого APK
+            } else {
+                println("APK file not found at expected location")
+            }
+        }
+    }
+}
