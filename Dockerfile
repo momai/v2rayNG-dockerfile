@@ -48,18 +48,8 @@ WORKDIR /workspace/v2rayNG/V2rayNG
 RUN chmod +x ./gradlew
 
 # Создаем скрипт для сборки и копирования
-RUN echo '#!/bin/sh\n\
-./gradlew "$@"\n\
-mkdir -p /output\n\
-cp -r /workspace/v2rayNG/V2rayNG/app/build/outputs/apk/release/* /output/\n\
-echo "Build completed. APK files copied to /output/"' > /build_and_copy.sh && chmod +x /build_and_copy.sh
+COPY build_and_copy.sh /build_and_copy.sh
+RUN chmod +x /build_and_copy.sh
 
 # Устанавливаем ENTRYPOINT
 ENTRYPOINT ["/build_and_copy.sh"]
-
-
-# Устанавливаем ENTRYPOINT
-#ENTRYPOINT ["./gradlew"]
-
-# Устанавливаем рабочую директорию по умолчанию
-#WORKDIR /workspace/v2rayNG/V2rayNG
