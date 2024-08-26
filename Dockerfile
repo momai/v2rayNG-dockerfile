@@ -31,7 +31,7 @@ ENV PATH $PATH:$JAVA_HOME/bin
 
 # Клонируем репозиторий v2rayNG с кастомными изменениями
 WORKDIR /workspace
-RUN git clone https://github.com/momai/v2rayNG.git
+RUN git clone -b develop https://github.com/momai/v2rayNG.git
 
 # Собираем зависимости
 RUN mkdir build && cd build && \

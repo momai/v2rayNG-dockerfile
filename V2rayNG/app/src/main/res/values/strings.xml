@@ -276,7 +276,7 @@
     <string name="title_pref_fragment_interval">Fragment Interval (min-max)</string>
     <string name="title_pref_fragment_enabled">Enable Fragment</string>
 
-    <string name="vas3k_subscription_url" translatable="false">VAS3K_SUB_URL</string>
+    <string name="vpn_subscription_url" translatable="false">VPN_SUB_URL</string>
 
     <string-array name="share_method">
         <item>QRcode</item>

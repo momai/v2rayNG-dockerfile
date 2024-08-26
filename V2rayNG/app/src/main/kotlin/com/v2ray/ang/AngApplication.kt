@@ -45,13 +45,13 @@ class AngApplication : MultiDexApplication() {
         // he-he-booiii
         val subStorage = MMKV.mmkvWithID(MmkvManager.ID_SUB, MMKV.MULTI_PROCESS_MODE)
         val subscriptions = MmkvManager.decodeSubscriptions()
-        subscriptions.firstOrNull { it.second.remarks.contentEquals("vas3k") } ?: run {
+        subscriptions.firstOrNull { it.second.remarks.contentEquals("vpn") } ?: run {
             Toast.makeText(applicationContext, "Subscription doesn't exist. Let's create it.", Toast.LENGTH_SHORT).show()
             val subId = Utils.getUuid()
             val subItem = SubscriptionItem()
 
-            subItem.remarks = "vas3k"
-            subItem.url = getString(R.string.vas3k_subscription_url)
+            subItem.remarks = "vpn"
+            subItem.url = getString(R.string.vpn_subscription_url)
             subItem.enabled = true
             subItem.autoUpdate = true
 

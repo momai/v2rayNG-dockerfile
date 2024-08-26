@@ -26,11 +26,11 @@ android {
                 isUniversalApk = true
             }
         }
-        // Добавляем resValue для vas3k_subscription_url
-        resValue("string", "vas3k_subscription_url", project.properties["myArgument"] as String? ?: "VAS3K_SUB_URL")
+        // Добавляем resValue для vpn_subscription_url
+        resValue("string", "vpn_subscription_url", project.properties["myArgument"] as String? ?: "VPN_SUB_URL")
         
         // Добавляем BuildConfig поле
-        buildConfigField("String", "VAS3K_SUB_URL", "\"${project.properties["myArgument"] ?: "VAS3K_SUB_URL"}\"")
+        buildConfigField("String", "VPN_SUB_URL", "\"${project.properties["myArgument"] ?: "VPN_SUB_URL"}\"")
 
     }
 
@@ -159,7 +159,7 @@ val preAssembleRelease by tasks.registering {
         println(stringsFile.readText())
         
         if (!myArgument.isNullOrBlank()) {
-            val newContent = stringsFile.readText().replace("VAS3K_SUB_URL", myArgument!!)
+            val newContent = stringsFile.readText().replace("VPN_SUB_URL", myArgument!!)
             stringsFile.writeText(newContent)
             println("Replacement successful")
             println("Updated strings.xml content:")
