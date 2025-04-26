@@ -32,7 +32,8 @@ jobs:
       - name: Build Docker image
         if: steps.check_built.outputs.already_built == 'false'
         run: |
-          docker build -t ghcr.io/${{ github.repository }}:$(cat latest_tag.txt) .
+          repo=$(echo "${GITHUB_REPOSITORY,,}")
+          docker build -t ghcr.io/$repo:$(cat latest_tag.txt) .
 
       - name: Login to GitHub Container Registry
         if: steps.check_built.outputs.already_built == 'false'
@@ -45,7 +46,8 @@ jobs:
       - name: Push Docker image
         if: steps.check_built.outputs.already_built == 'false'
         run: |
-          docker push ghcr.io/${{ github.repository }}:$(cat latest_tag.txt)
+          repo=$(echo "${GITHUB_REPOSITORY,,}")
+          docker push ghcr.io/$repo:$(cat latest_tag.txt)
 
       - name: Create GitHub Release
         if: steps.check_built.outputs.already_built == 'false'
