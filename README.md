@@ -21,7 +21,7 @@ docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest
 Где `https://example.com/s/your-subscription-url` - это URL вашей подписки.
 
 APK-файлы будут скопированы в директорию `output/`.
-
+___
 
 ### Сборка Docker-образа
 Если вы хотите собрать образ самостоятельно
@@ -29,8 +29,7 @@ APK-файлы будут скопированы в директорию `output
 ```bash
 docker build --no-cache -t v2rayng-custom .
 ```
-
-### Сборка APK с подпиской
+Затем запустите сборку APK с подпиской
 
 ```bash
 docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url
