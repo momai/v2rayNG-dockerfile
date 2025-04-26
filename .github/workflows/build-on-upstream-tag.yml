@@ -12,50 +12,23 @@ jobs:
     steps:
       - name: Checkout self
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Get latest upstream tag
         id: get_tag
         run: |
-          # Получаем теги из репозитория v2rayNG
-          LATEST_TAG=$(git ls-remote --tags https://github.com/2dust/v2rayNG.git | \
-                       awk -F/ '{print $3}' | \
-                       grep -v '\^{}' | \
-                       sort -V | \
-                       tail -n1)
-          
-          # Проверяем, что тег не пустой
-          if [ -z "$LATEST_TAG" ]; then
-            echo "Error: Could not retrieve latest tag from v2rayNG repository"
-            exit 1
-          fi
-          
-          echo "Retrieved latest tag: $LATEST_TAG"
-          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          git ls-remote --tags https://github.com/2dust/v2rayNG.git | \
+            awk -F/ '{print $3}' | grep -v '\^{}' | sort -V | tail -n1 > latest_tag.txt
+          echo "tag=$(cat latest_tag.txt)" >> $GITHUB_OUTPUT
 
-      - name: Check if tag already processed
-        id: check_tag
+      - name: Check if release exists
+        id: check_release
         run: |
-          TAG="${{ steps.get_tag.outputs.tag }}"
-          
-          # Создаем файл LAST_PROCESSED_TAG, если он не существует
-          if [ ! -f "LAST_PROCESSED_TAG" ]; then
-            echo "Creating LAST_PROCESSED_TAG file"
-            echo "none" > LAST_PROCESSED_TAG
-          fi
-          
-          # Получаем последний обработанный тег
-          LAST_TAG=$(cat LAST_PROCESSED_TAG)
-          echo "Last processed tag: $LAST_TAG"
-          
-          # Если текущий тег совпадает с последним обработанным, пропускаем сборку
-          if [ "$TAG" == "$LAST_TAG" ]; then
-            echo "Tag $TAG was already processed. Skipping build."
+          if gh release view "${{ steps.get_tag.outputs.tag }}" > /dev/null 2>&1; then
+            echo "Release already exists, exiting."
             exit 0
-          else
-            echo "Tag $TAG is new, proceeding with build."
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image
         run: |
@@ -101,10 +74,10 @@ jobs:
 
             ```bash
             # Рекомендуется использовать конкретную версию (этот релиз)
-            docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }} -PmyArgument=https://example.com/s/your-subscription-url
+            docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }} -PmyArgument=https://example.com/s/your-subscription-url
             
             # Или можно использовать latest версию
-            docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
+            docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
             ```
 
             Где:
@@ -116,15 +89,5 @@ jobs:
             Этот релиз основан на v2rayNG [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
             
             Docker-образы:
-            - Версия этого релиза: `ghcr.io/momai/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
-            - Последняя версия: `ghcr.io/momai/v2rayng-dockerfile:latest`
-
-      - name: Update LAST_PROCESSED_TAG
-        run: |
-          echo "${{ steps.get_tag.outputs.tag }}" > LAST_PROCESSED_TAG
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add LAST_PROCESSED_TAG
-          git commit -m "Update LAST_PROCESSED_TAG to ${{ steps.get_tag.outputs.tag }}"
-          git pull --rebase origin master
-          git push 
+            - Версия этого релиза: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
+            - Последняя версия: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest` 
