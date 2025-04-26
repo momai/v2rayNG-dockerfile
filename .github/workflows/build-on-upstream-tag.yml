@@ -16,9 +16,21 @@ jobs:
       - name: Get latest upstream tag
         id: get_tag
         run: |
-          git ls-remote --tags https://github.com/2dust/v2rayNG.git | \
-            awk -F/ '{print $3}' | grep -v '\^{}' | sort -V | tail -n1 > latest_tag.txt
-          echo "tag=$(cat latest_tag.txt)" >> $GITHUB_OUTPUT
+          # Получаем теги из репозитория v2rayNG
+          LATEST_TAG=$(git ls-remote --tags https://github.com/2dust/v2rayNG.git | \
+                       awk -F/ '{print $3}' | \
+                       grep -v '\^{}' | \
+                       sort -V | \
+                       tail -n1)
+          
+          # Проверяем, что тег не пустой
+          if [ -z "$LATEST_TAG" ]; then
+            echo "Error: Could not retrieve latest tag from v2rayNG repository"
+            exit 1
+          fi
+          
+          echo "Retrieved latest tag: $LATEST_TAG"
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
       - name: Check if release exists
         id: check_release
