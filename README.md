@@ -34,7 +34,7 @@ docker build --no-cache -t v2rayng-custom .
 
 ```bash
 docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url
-``
+```
 
 ### Дополнительные параметры сборки
 
