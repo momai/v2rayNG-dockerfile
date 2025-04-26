@@ -66,16 +66,28 @@ jobs:
           tag_name: ${{ steps.get_tag.outputs.tag }}
           name: Release ${{ steps.get_tag.outputs.tag }}
           body: |
-            ## Как использовать Docker-образ
+            ## Сборка v2rayNG с автоматическим добавлением подписки
 
-            Запустите у себя сборку из заранее собранного образа, указав ссылку подписку в качестве аргумента:
+            ### Как использовать
+
+            Используйте Docker-образ из нашего GitHub Container Registry:
+
             ```bash
+            # Рекомендуется использовать конкретную версию (этот релиз)
+            docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.tag }} -PmyArgument=https://example.com/s/your-subscription-url
+            
+            # Или можно использовать latest версию
             docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository }}:latest -PmyArgument=https://example.com/s/your-subscription-url
             ```
-            Где `https://example.com/s/your-subscription-url` — это URL вашей подписки.
 
-            APK-файлы будут скопированы в директорию `output/`.
+            Где:
+            - `https://example.com/s/your-subscription-url` — URL вашей VPN-подписки
+            - Собранные APK-файлы будут доступны в директории `output/`
 
-            ---
-            Новый релиз на основе тега [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
-            Docker-образ: `ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.tag }}` и `ghcr.io/${{ github.repository }}:latest` 
+            ### Детали релиза
+            
+            Этот релиз основан на v2rayNG [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
+            
+            Docker-образы:
+            - Версия этого релиза: `ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.tag }}`
+            - Последняя версия: `ghcr.io/${{ github.repository }}:latest` 
