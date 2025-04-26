@@ -2,7 +2,7 @@ name: Build and Release on new v2rayNG tag
 
 on:
   schedule:
-    - cron: '0 * * * *' # каждый час
+    - cron: '0 0 * * *'  # Запуск каждый день в 00:00 UTC
   workflow_dispatch:
 
 jobs:
