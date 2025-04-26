@@ -13,7 +13,8 @@
 
 ### Основной метод:
 
-Запустите у себя сборку из заранее собранного образа, указав ссылку  подписку в качестве аргумента. 
+Используйте готовый Docker-образ из GitHub Container Registry, доступный в Releases этого репозитория. Вам не нужно собирать образ самостоятельно.
+
 ```bash
 docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
 ```
@@ -23,7 +24,7 @@ docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest
 APK-файлы будут скопированы в директорию `output/`.
 ___
 
-### Сборка Docker-образа
+### Самостоятельная сборка Docker-образа
 Если вы хотите собрать образ самостоятельно
 
 ```bash
