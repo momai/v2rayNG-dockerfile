@@ -23,9 +23,19 @@ jobs:
       - name: Check if release exists
         id: check_release
         run: |
-          if gh release view "${{ steps.get_tag.outputs.tag }}" > /dev/null 2>&1; then
-            echo "Release already exists, exiting."
+          # Проверяем существование релиза через API GitHub
+          REPO="${GITHUB_REPOSITORY,,}"
+          TAG="${{ steps.get_tag.outputs.tag }}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${REPO}/releases/tags/${TAG}")
+          
+          if [ "$STATUS" == "200" ]; then
+            echo "Release $TAG already exists, skipping build."
             exit 0
+          else
+            echo "Release $TAG does not exist, proceeding with build."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
