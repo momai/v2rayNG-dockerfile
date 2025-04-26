@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout self
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Get latest upstream tag
         id: get_tag
@@ -32,39 +34,28 @@ jobs:
           echo "Retrieved latest tag: $LATEST_TAG"
           echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
-      - name: Check if release exists
-        id: check_release
+      - name: Check if tag already processed
+        id: check_tag
         run: |
-          # Проверяем существование релиза через API GitHub
-          REPO="${GITHUB_REPOSITORY,,}"
           TAG="${{ steps.get_tag.outputs.tag }}"
           
-          echo "Checking if release exists for tag $TAG in repository $REPO"
+          # Создаем файл LAST_PROCESSED_TAG, если он не существует
+          if [ ! -f "LAST_PROCESSED_TAG" ]; then
+            echo "Creating LAST_PROCESSED_TAG file"
+            echo "none" > LAST_PROCESSED_TAG
+          fi
           
-          # Используем более простой метод проверки - list releases и grep
-          RELEASE_EXISTS=$(curl -s \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${REPO}/releases" | grep -c "\"tag_name\":\"${TAG}\"")
+          # Получаем последний обработанный тег
+          LAST_TAG=$(cat LAST_PROCESSED_TAG)
+          echo "Last processed tag: $LAST_TAG"
           
-          echo "API response indicates $RELEASE_EXISTS matching releases"
-          
-          # Также проверяем, существует ли Docker-образ в Container Registry
-          IMAGE_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://ghcr.io/v2/${REPO}/manifests/${TAG}")
-          
-          echo "Docker image check status: $IMAGE_EXISTS (200=exists, 404=not found)"
-          
-          # Если релиз или образ существует, завершаем работу
-          if [ "$RELEASE_EXISTS" -gt "0" ] || [ "$IMAGE_EXISTS" == "200" ]; then
-            echo "Release or Docker image for tag $TAG already exists, skipping build."
+          # Если текущий тег совпадает с последним обработанным, пропускаем сборку
+          if [ "$TAG" == "$LAST_TAG" ]; then
+            echo "Tag $TAG was already processed. Skipping build."
             exit 0
           else
-            echo "Neither release nor Docker image for tag $TAG exists, proceeding with build."
+            echo "Tag $TAG is new, proceeding with build."
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image
         run: |
@@ -126,4 +117,14 @@ jobs:
             
             Docker-образы:
             - Версия этого релиза: `ghcr.io/momai/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
-            - Последняя версия: `ghcr.io/momai/v2rayng-dockerfile:latest` 
+            - Последняя версия: `ghcr.io/momai/v2rayng-dockerfile:latest`
+
+      - name: Update LAST_PROCESSED_TAG
+        run: |
+          echo "${{ steps.get_tag.outputs.tag }}" > LAST_PROCESSED_TAG
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add LAST_PROCESSED_TAG
+          git commit -m "Update LAST_PROCESSED_TAG to ${{ steps.get_tag.outputs.tag }}"
+          git pull --rebase origin master
+          git push 
