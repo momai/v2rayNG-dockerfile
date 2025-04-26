@@ -132,8 +132,12 @@ if [ -n "$MAIN_ACTIVITY" ]; then
                                                 android.widget.Toast.LENGTH_LONG
                                             ).show()
                                             
-                                            // Принудительно обновляем список серверов
-                                            mainViewModel.reloadServerList()
+                                            // Обновляем список серверов для отображения новых серверов
+                                            try {
+                                                mainViewModel.reloadServerList()
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
+                                            }
                                             
                                             // Попытка переключиться на вкладку серверов
                                             try {
@@ -147,12 +151,6 @@ if [ -n "$MAIN_ACTIVITY" ]; then
                                                             onNavigationItemSelected(menuItem)
                                                         }
                                                     }
-                                                    
-                                                    // Дополнительно обновляем список после перехода на вкладку серверов
-                                                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                                                        mainViewModel.reloadServerList()
-                                                        adapter.notifyDataSetChanged()
-                                                    }, 500)
                                                 }
                                             } catch (e: Exception) {
                                                 e.printStackTrace()
