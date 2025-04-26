@@ -33,7 +33,7 @@ jobs:
         if: steps.check_built.outputs.already_built == 'false'
         run: |
           repo=$(echo "${GITHUB_REPOSITORY,,}")
-          docker build -t ghcr.io/$repo:$(cat latest_tag.txt) .
+          docker build -t ghcr.io/$repo:${{ steps.get_tag.outputs.tag }} .
 
       - name: Login to GitHub Container Registry
         if: steps.check_built.outputs.already_built == 'false'
@@ -47,23 +47,23 @@ jobs:
         if: steps.check_built.outputs.already_built == 'false'
         run: |
           repo=$(echo "${GITHUB_REPOSITORY,,}")
-          docker push ghcr.io/$repo:$(cat latest_tag.txt)
+          docker push ghcr.io/$repo:${{ steps.get_tag.outputs.tag }}
 
       - name: Create and push tag
         if: steps.check_built.outputs.already_built == 'false'
         run: |
-          git tag $(cat latest_tag.txt)
-          git push origin $(cat latest_tag.txt)
+          git tag ${{ steps.get_tag.outputs.tag }}
+          git push origin ${{ steps.get_tag.outputs.tag }}
 
       - name: Create GitHub Release
         if: steps.check_built.outputs.already_built == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: $(cat latest_tag.txt)
-          name: Release $(cat latest_tag.txt)
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          name: Release ${{ steps.get_tag.outputs.tag }}
           body: |
             Новый релиз на основе тега [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
-            Docker-образ: `ghcr.io/${{ github.repository }}:$(cat latest_tag.txt)`
+            Docker-образ: `ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.tag }}`
 
       - name: Mark tag as built
         if: steps.check_built.outputs.already_built == 'false'
