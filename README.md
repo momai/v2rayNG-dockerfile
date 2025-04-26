@@ -13,7 +13,7 @@
 
 ### Основной метод:
 
-Запустите у себя сборку, указав ссылку подписку в качестве аргумента
+Запустите у себя сборку из заранее собранного образа, указав ссылку  подписку в качестве аргумента. 
 ```bash
 docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
 ```

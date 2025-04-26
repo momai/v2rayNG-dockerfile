@@ -23,7 +23,7 @@ jobs:
       - name: Check if already built
         id: check_built
         run: |
-          if grep -q "$(cat latest_tag.txt)" built_tags.txt 2>/dev/null; then
+          if grep -q "${{ steps.get_tag.outputs.tag }}" built_tags.txt 2>/dev/null; then
             echo "already_built=true" >> $GITHUB_OUTPUT
           else
             echo "already_built=false" >> $GITHUB_OUTPUT
@@ -52,6 +52,8 @@ jobs:
       - name: Create and push tag
         if: steps.check_built.outputs.already_built == 'false'
         run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git tag ${{ steps.get_tag.outputs.tag }}
           git push origin ${{ steps.get_tag.outputs.tag }}
 
@@ -68,9 +70,10 @@ jobs:
       - name: Mark tag as built
         if: steps.check_built.outputs.already_built == 'false'
         run: |
-          echo "$(cat latest_tag.txt)" >> built_tags.txt
+          echo "${{ steps.get_tag.outputs.tag }}" >> built_tags.txt
           git config user.name github-actions
           git config user.email github-actions@github.com
+          git pull --rebase origin master
           git add built_tags.txt
-          git commit -m "Built for tag $(cat latest_tag.txt)"
+          git commit -m "Built for tag ${{ steps.get_tag.outputs.tag }}"
           git push 
