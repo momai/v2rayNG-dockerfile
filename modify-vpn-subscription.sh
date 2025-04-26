@@ -89,7 +89,7 @@ if [ -n "$MAIN_ACTIVITY" ]; then
                 val prefs = getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
                 val importedKey = "subscription_imported_${subUrl.hashCode()}"
                 if (!prefs.getBoolean(importedKey, false)) {
-                    // Выполняем импорт подписки в фоновом потоке через 3 секунды
+                    // Выполняем импорт подписки в фоновом потоке через 1 секунду
                     android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                         try {
                             // Создаем объект подписки
@@ -118,7 +118,7 @@ if [ -n "$MAIN_ACTIVITY" ]; then
                             kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                                 try {
                                     // Даем дополнительное время на инициализацию сети
-                                    kotlinx.coroutines.delay(5000)
+                                    kotlinx.coroutines.delay(2000)
                                     
                                     // Обновляем конфигурацию по подписке
                                     val count = com.v2ray.ang.handler.AngConfigManager.updateConfigViaSub(Pair(subId, subItem))
@@ -183,7 +183,7 @@ if [ -n "$MAIN_ACTIVITY" ]; then
                                 android.widget.Toast.LENGTH_LONG
                             ).show()
                         }
-                    }, 3000) // Увеличиваем задержку до 3 секунд
+                    }, 1000) // Увеличиваем задержку до 1 секунды
                 }
             }
         } catch (e: Exception) {
