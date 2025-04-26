@@ -74,10 +74,10 @@ jobs:
 
             ```bash
             # Рекомендуется использовать конкретную версию (этот релиз)
-            docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.tag }} -PmyArgument=https://example.com/s/your-subscription-url
+            docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }} -PmyArgument=https://example.com/s/your-subscription-url
             
             # Или можно использовать latest версию
-            docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository }}:latest -PmyArgument=https://example.com/s/your-subscription-url
+            docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
             ```
 
             Где:
@@ -89,5 +89,5 @@ jobs:
             Этот релиз основан на v2rayNG [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
             
             Docker-образы:
-            - Версия этого релиза: `ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.tag }}`
-            - Последняя версия: `ghcr.io/${{ github.repository }}:latest` 
+            - Версия этого релиза: `ghcr.io/momai/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
+            - Последняя версия: `ghcr.io/momai/v2rayng-dockerfile:latest` 
