@@ -49,6 +49,12 @@ jobs:
           repo=$(echo "${GITHUB_REPOSITORY,,}")
           docker push ghcr.io/$repo:$(cat latest_tag.txt)
 
+      - name: Create and push tag
+        if: steps.check_built.outputs.already_built == 'false'
+        run: |
+          git tag $(cat latest_tag.txt)
+          git push origin $(cat latest_tag.txt)
+
       - name: Create GitHub Release
         if: steps.check_built.outputs.already_built == 'false'
         uses: softprops/action-gh-release@v2
