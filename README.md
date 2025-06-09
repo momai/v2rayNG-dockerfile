@@ -19,18 +19,13 @@ Docker image for building v2rayNG with automatic subscription URL import. On fir
 ```bash
 docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
 ```
-- Replace the URL with your subscription link.
+- **Replace** the URL with your **subscription link**.
 - APKs will appear in `output/`.
 
 **Build locally:**
 ```bash
 docker build --no-cache -t v2rayng-custom .
 docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url
-```
-
-**Extra Gradle args:**
-```bash
-docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url --stacktrace --info
 ```
 
 ### How it works
@@ -69,11 +64,6 @@ docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest
 ```bash
 docker build --no-cache -t v2rayng-custom .
 docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url
-```
-
-**Доп. параметры Gradle:**
-```bash
-docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url --stacktrace --info
 ```
 
 ### Как работает
