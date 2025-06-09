@@ -2,7 +2,7 @@ name: Build and Release on new v2rayNG tag
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Запуск каждый день в 00:00 UTC
+    - cron: '0 0 */2 * *'  # Запуск по чётным дням месяца (каждые два дня)
   workflow_dispatch:
 
 jobs:
@@ -83,26 +83,35 @@ jobs:
           body: |
             ## Сборка v2rayNG с автоматическим добавлением подписки
 
-            ### Как использовать
-
-            Используйте Docker-образ из нашего GitHub Container Registry:
+            ### Как использовать Docker-образ
 
             ```bash
-            # Рекомендуется использовать конкретную версию (этот релиз)
             docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }} -PmyArgument=https://example.com/s/your-subscription-url
-            
-            # Или можно использовать latest версию
-            docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
             ```
 
-            Где:
-            - `https://example.com/s/your-subscription-url` — URL вашей VPN-подписки
-            - Собранные APK-файлы будут доступны в директории `output/`
+            - Замените `https://example.com/s/your-subscription-url` на ссылку вашей подписки.
+            - Готовые APK-файлы появятся в папке `output/` на вашем компьютере.
 
-            ### Детали релиза
-            
-            Этот релиз основан на v2rayNG [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
-            
-            Docker-образы:
-            - Версия этого релиза: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
-            - Последняя версия: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest` 
+            ### Образы Docker
+
+            - Версия релиза: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
+            - Последняя версия: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest`
+
+            ### Подробнее
+
+            - Этот релиз основан на v2rayNG [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
+
+      - name: Write summary if skipped
+        if: steps.check_tag.outputs.tag_exists == 'true'
+        run: |
+          echo "### ⚠️ Сборка пропущена" >> $GITHUB_STEP_SUMMARY
+          echo "Тег \`${{ steps.get_tag.outputs.tag }}\` уже существует в репозитории. Новая сборка не требуется." >> $GITHUB_STEP_SUMMARY
+
+      - name: Write summary if built
+        if: steps.check_tag.outputs.tag_exists == 'false'
+        run: |
+          echo "### ✅ Сборка и публикация завершены" >> $GITHUB_STEP_SUMMARY
+          echo "- Новый тег: \`${{ steps.get_tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker-образ: \`ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Последний образ: \`ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- [Релиз на GitHub](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})" >> $GITHUB_STEP_SUMMARY 
