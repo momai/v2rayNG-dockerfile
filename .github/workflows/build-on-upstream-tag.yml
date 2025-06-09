@@ -81,25 +81,45 @@ jobs:
           tag_name: ${{ steps.get_tag.outputs.tag }}
           name: Release ${{ steps.get_tag.outputs.tag }}
           body: |
-            ## Сборка v2rayNG с автоматическим добавлением подписки
+            ## v2rayNG Subscription Builder
 
-            ### Как использовать Docker-образ
+            [Перейти к русской версии](#russian)
 
+            ---
+
+            ## English
+
+            **Docker image for building v2rayNG with automatic subscription import.**
+
+            **Usage:**
             ```bash
             docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }} -PmyArgument=https://example.com/s/your-subscription-url
             ```
+            - **Replace** the URL with your **subscription link**.
+            - APKs will appear in `output/`.
 
-            - Замените `https://example.com/s/your-subscription-url` на ссылку вашей подписки.
-            - Готовые APK-файлы появятся в папке `output/` на вашем компьютере.
+            - Version: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
+            - Latest: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest`
 
-            ### Образы Docker
+            ---
 
-            - Версия релиза: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
-            - Последняя версия: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest`
+            ## <a name="russian"></a>Русский
 
-            ### Подробнее
+            **Docker-образ для сборки v2rayNG с автоматическим импортом подписки.**
 
-            - Этот релиз основан на v2rayNG [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
+            **Использование:**
+            ```bash
+            docker run --rm -v $(pwd)/output:/output ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }} -PmyArgument=https://example.com/s/your-subscription-url
+            ```
+            - **Замените** ссылку на вашу **подписку**.
+            - APK-файлы появятся в папке `output/`.
+
+            - Версия: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:${{ steps.get_tag.outputs.tag }}`
+            - Последняя: `ghcr.io/${{ github.repository_owner }}/v2rayng-dockerfile:latest`
+
+            ---
+
+            Based on v2rayNG [${{ steps.get_tag.outputs.tag }}](https://github.com/2dust/v2rayNG/releases/tag/${{ steps.get_tag.outputs.tag }})
 
       - name: Write summary if skipped
         if: steps.check_tag.outputs.tag_exists == 'true'
