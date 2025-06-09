@@ -1,4 +1,6 @@
-# v2rayNG with Automatic Subscription Import / v2rayNG с автоматическим импортом подписки
+# v2rayNG Subscription Builder
+
+[Перейти к русской версии](#русский)
 
 ---
 
@@ -45,7 +47,7 @@ docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://exa
 
 ---
 
-## Русский
+## <a name="русский"></a>Русский
 
 ### Описание
 Docker-образ для сборки v2rayNG с автоматическим импортом URL подписки. При первом запуске подписка импортируется и активируется.
