@@ -1,77 +1,87 @@
-# v2rayNG с автоматическим добавлением подписки
+# v2rayNG with Automatic Subscription Import / v2rayNG с автоматическим импортом подписки
 
-Этот проект предоставляет Docker-образ для сборки v2rayNG с автоматическим добавлением URL подписки во время сборки. При первом запуске приложения подписка будет автоматически импортирована и активирована.
+---
 
-## Особенности
+## English
 
-- Сборка v2rayNG из официального репозитория
-- Добавление URL подписки на этапе сборки
-- Автоматический импорт подписки при первом запуске приложения
-- Поддержка всех архитектур (arm64-v8a, armeabi-v7a, x86_64, x86)
+### Overview
+Docker image for building v2rayNG with automatic subscription URL import. On first launch, the subscription is imported and activated.
 
-## Использование
+### Features
+- Builds v2rayNG from upstream
+- Adds subscription URL at build time
+- Automatic import on first app launch
+- Multi-arch support (arm64-v8a, armeabi-v7a, x86_64, x86)
 
-### Основной метод:
-
-Используйте готовый Docker-образ из GitHub Container Registry, доступный в Releases этого репозитория. Вам не нужно собирать образ самостоятельно.
+### Usage
+**Recommended:** Use prebuilt image from GitHub Container Registry.
 
 ```bash
 docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
 ```
+- Replace the URL with your subscription link.
+- APKs will appear in `output/`.
 
-Где `https://example.com/s/your-subscription-url` - это URL вашей подписки.
-
-APK-файлы будут скопированы в директорию `output/`.
-___
-
-### Самостоятельная сборка Docker-образа
-Если вы хотите собрать образ самостоятельно
-
+**Build locally:**
 ```bash
 docker build --no-cache -t v2rayng-custom .
-```
-Затем запустите сборку APK с подпиской
-
-```bash
 docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url
 ```
 
-### Дополнительные параметры сборки
-
-Вы можете передать дополнительные параметры Gradle. Например:
-
+**Extra Gradle args:**
 ```bash
-docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url --stacktrace --info --console=plain
+docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url --stacktrace --info
 ```
 
-## Как это работает
+### How it works
+- Clones upstream v2rayNG
+- Injects subscription URL (string resource and asset file)
+- Modifies MainActivity for auto-import
+- Builds APKs and copies to `output/`
 
-1. Docker-образ клонирует официальный репозиторий v2rayNG
-2. Собирает необходимые зависимости, включая AndroidLibXrayLite
-3. Модифицирует исходный код для добавления поддержки URL подписки:
-   - Добавляет строковый ресурс с URL подписки
-   - Создает файл в assets с URL подписки (резервный метод)
-   - Модифицирует MainActivity для импорта подписки при первом запуске
-4. Выполняет сборку приложения
-5. Копирует собранные APK в указанную директорию
+### Troubleshooting
+- For Go/gomobile errors, use: Go 1.20.14 + gomobile v0.0.0-20231108080712-20b9621131a5
+- "toolchain not available": check Go/gomobile versions in Dockerfile
 
-## Механизм автоматического импорта подписки
+---
 
-1. **Основной метод**: Через строковый ресурс `vpn_subscription_url`
-2. **Резервный метод**: Через файл `subscription_url.txt` в директории assets
+## Русский
 
-Это позволяет скрипту работать при изменениях в структуре кода оригинального приложения.
+### Описание
+Docker-образ для сборки v2rayNG с автоматическим импортом URL подписки. При первом запуске подписка импортируется и активируется.
 
-## Решение проблем
+### Особенности
+- Сборка v2rayNG из апстрима
+- Добавление URL подписки на этапе сборки
+- Автоматический импорт при первом запуске
+- Поддержка всех архитектур (arm64-v8a, armeabi-v7a, x86_64, x86)
 
-### Ошибка при сборке AndroidLibXrayLite
+### Использование
+**Рекомендуется:** использовать готовый образ из GitHub Container Registry.
 
-Если возникают ошибки на этапе сборки AndroidLibXrayLite, связанные с версиями Go или gomobile,
-проверьте совместимость используемых версий в Dockerfile. Известные рабочие комбинации:
+```bash
+docker run --rm -v $(pwd)/output:/output ghcr.io/momai/v2rayng-dockerfile:latest -PmyArgument=https://example.com/s/your-subscription-url
+```
+- Замените URL на ссылку вашей подписки.
+- APK-файлы появятся в папке `output/`.
 
-- Go 1.20.14 + gomobile v0.0.0-20231108080712-20b9621131a5
+**Собрать локально:**
+```bash
+docker build --no-cache -t v2rayng-custom .
+docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url
+```
 
-### Ошибка "toolchain not available"
+**Доп. параметры Gradle:**
+```bash
+docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://example.com/s/your-subscription-url --stacktrace --info
+```
 
-Это обычно указывает на несовместимость между версиями Go и gomobile. Обновите Dockerfile,
-чтобы использовать фиксированные версии обоих компонентов.
+### Как работает
+- Клонирует апстрим v2rayNG
+- Вставляет URL подписки (строковый ресурс и файл в assets)
+- Модифицирует MainActivity для автоимпорта
+- Собирает APK и копирует в `output/`
+
+### Решение проблем
+- Для ошибок Go/gomobile: используйте Go 1.20.14 + gomobile v0.0.0-20231108080712-20b9621131a5
+- "toolchain not available": проверьте версии Go/gomobile в Dockerfile
