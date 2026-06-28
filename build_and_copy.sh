@@ -3,15 +3,27 @@ set -e
 
 echo "====================== v2rayNG Builder ======================"
 echo "Дата и время: $(date)"
-echo "Версия Go: $(go version)"
+if command -v go >/dev/null 2>&1; then
+    echo "Версия Go: $(go version)"
+else
+    echo "Версия Go: не установлен (не требуется при использовании готового libv2ray.aar)"
+fi
 echo "Версия Java: $(java -version 2>&1 | head -n 1)"
 echo "============================================================="
 
 # Проверяем, передан ли аргумент myArgument
 MY_ARGUMENT=""
-if echo "$@" | grep -q -- "-PmyArgument="; then
+GRADLE_ARGS=()
+for arg in "$@"; do
+    if [[ "$arg" == -PmyArgument=* ]]; then
+        MY_ARGUMENT="${arg#-PmyArgument=}"
+    else
+        GRADLE_ARGS+=("$arg")
+    fi
+done
+
+if [ -n "$MY_ARGUMENT" ]; then
     # Извлекаем значение myArgument
-    MY_ARGUMENT=$(echo "$@" | sed -n 's/.*-PmyArgument=\([^ ]*\).*/\1/p')
     echo "URL подписки: $MY_ARGUMENT"
     
     # Применяем модификацию для добавления URL подписки
@@ -33,9 +45,33 @@ echo "Очистка завершена"
 cd /workspace/v2rayNG/V2rayNG
 echo "Рабочая директория: $(pwd)"
 
-# Увеличиваем память для Gradle
-echo "org.gradle.jvmargs=-Xmx4608m" >> gradle.properties
-echo "Добавлены настройки памяти для Gradle"
+# Увеличиваем память для Gradle, не ломая последнюю строку upstream gradle.properties
+ensure_gradle_property() {
+    local key="$1"
+    local value="$2"
+    local file="gradle.properties"
+
+    touch "$file"
+    if [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -eq 0 ]; then
+        printf '\n' >> "$file"
+    fi
+
+    if grep -q "^${key}=" "$file"; then
+        sed -i "s|^${key}=.*|${key}=${value}|" "$file"
+    else
+        printf '%s=%s\n' "$key" "$value" >> "$file"
+    fi
+}
+
+ensure_gradle_property "org.gradle.jvmargs" "-Xmx4608m -Dfile.encoding=UTF-8"
+echo "Настройки памяти для Gradle обновлены"
+
+# Upstream v2rayNG может поднять compileSdk раньше, чем пакет появится в sdkmanager.
+if [ -n "${ANDROID_COMPILE_SDK:-}" ] && [ -f "app/build.gradle.kts" ]; then
+    sed -i -E "s/(compileSdk = )[0-9]+/\1${ANDROID_COMPILE_SDK}/" app/build.gradle.kts
+    sed -i -E "s/(targetSdk = )[0-9]+/\1${ANDROID_COMPILE_SDK}/" app/build.gradle.kts
+    echo "compileSdk/targetSdk установлены в ${ANDROID_COMPILE_SDK}"
+fi
 
 # Проверяем структуру проекта
 echo "Проверка структуры проекта..."
@@ -62,16 +98,16 @@ echo "Запуск сборки..."
 if [ -n "$MY_ARGUMENT" ]; then
     echo "Сборка с аргументом URL подписки"
     if [ -n "$BUILD_VARIANT" ]; then
-        ./gradlew assemble${BUILD_VARIANT^}Release -PmyArgument="$MY_ARGUMENT" $@ --stacktrace
+        ./gradlew assemble${BUILD_VARIANT^}Release -PmyArgument="$MY_ARGUMENT" "${GRADLE_ARGS[@]}" --stacktrace
     else
-        ./gradlew assembleRelease -PmyArgument="$MY_ARGUMENT" $@ --stacktrace
+        ./gradlew assembleRelease -PmyArgument="$MY_ARGUMENT" "${GRADLE_ARGS[@]}" --stacktrace
     fi
 else
     echo "Сборка без URL подписки"
     if [ -n "$BUILD_VARIANT" ]; then
-        ./gradlew assemble${BUILD_VARIANT^}Release $@ --stacktrace
+        ./gradlew assemble${BUILD_VARIANT^}Release "${GRADLE_ARGS[@]}" --stacktrace
     else
-        ./gradlew assembleRelease $@ --stacktrace
+        ./gradlew assembleRelease "${GRADLE_ARGS[@]}" --stacktrace
     fi
 fi
 

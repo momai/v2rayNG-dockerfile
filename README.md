@@ -35,8 +35,9 @@ docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://exa
 - Builds APKs and copies to `output/`
 
 ### Troubleshooting
-- For Go/gomobile errors, use: Go 1.20.14 + gomobile v0.0.0-20231108080712-20b9621131a5
-- "toolchain not available": check Go/gomobile versions in Dockerfile
+- Go/gomobile is not required: the image downloads a prebuilt `libv2ray.aar`.
+- If Gradle fails with `Cannot parse project property android.newDsl`, rebuild the Docker image so `gradle.properties` is patched with a proper newline.
+- If Android SDK errors mention `compileSdk`, update the installed platform in `Dockerfile` to match upstream v2rayNG.
 
 ---
 
@@ -73,5 +74,6 @@ docker run --rm -v $(pwd)/output:/output v2rayng-custom -PmyArgument=https://exa
 - Собирает APK и копирует в `output/`
 
 ### Решение проблем
-- Для ошибок Go/gomobile: используйте Go 1.20.14 + gomobile v0.0.0-20231108080712-20b9621131a5
-- "toolchain not available": проверьте версии Go/gomobile в Dockerfile
+- Go/gomobile больше не нужен: образ скачивает готовый `libv2ray.aar`.
+- Если Gradle падает с `Cannot parse project property android.newDsl`, пересоберите Docker-образ, чтобы `gradle.properties` патчился с корректным переводом строки.
+- Если Android SDK ругается на `compileSdk`, обновите платформу в `Dockerfile` под текущий upstream v2rayNG.
